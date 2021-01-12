@@ -140,7 +140,6 @@ class TTGammaProcessor(processor.ProcessorABC):
         output['EventCount'] = len(events)
 
         dataset = events.metadata['dataset']
-        datasetFull = dataset+'_2016'
         
         rho = events.fixedGridRhoFastjetAll
 
@@ -592,6 +591,11 @@ class TTGammaProcessor(processor.ProcessorABC):
             # calculate pileup weights and variations
             # use the puLookup, puLookup_Up, and puLookup_Down lookup functions to find the nominal and up/down systematic weights
             # the puLookup dictionary is called with the full dataset name (datasetFull) and the number of true interactions (Pileup.nTrueInt)
+            datasetFull = dataset+'_2016' # Name for pileup lookup includes the year
+            if not datasetFull in puLookup:
+                print("WARNING : Using TTGamma_SingleLept_2016 pileup distribution instead of {}".format(datasetFull))
+                datasetFull = "TTGamma_SingleLept_2016"
+
             puWeight = ?
             puWeight_Up = ?
             puWeight_Down = ?
