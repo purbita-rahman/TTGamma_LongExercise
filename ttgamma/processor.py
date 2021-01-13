@@ -228,7 +228,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         # tight muons should have a pt of at least 30 GeV, |eta| < 2.4, pass the tight muon ID cut (tightID variable), and have a relative isolation of less than 0.15
         muonSelectTight = ((events.Muon.pt>=30) & 
                            (abs(events.Muon.eta)<2.4) & 
-                           (events.Muon.TightId) &
+                           (events.Muon.tightId) &
                             (events.Muon.pfRelIso04_all < 0.15)
                           )
 
@@ -275,14 +275,14 @@ class TTGammaProcessor(processor.ProcessorABC):
         # 1. ADD SELECTION
         #  Object selection
         #select the subset of muons passing the muonSelectTight and muonSelectLoose cuts
-        tightMuon = muon[muonSelectTight]
-        looseMuon = muon[muonSelectLoose]
+        tightMuon = events.Muon[muonSelectTight]
+        looseMuon = events.Muon[muonSelectLoose]
 
         # 1. ADD SELECTION
         #  Object selection
         #select the subset of electrons passing the electronSelectTight and electronSelectLoose cuts
-        tightElectron = electron[electronSelectTight]
-        looseElectron = electron[electronSelectLoose]
+        tightElectron = events.Electron[electronSelectTight]
+        looseElectron = events.Electron[electronSelectLoose]
 
         #### Calculate deltaR between photon and nearest lepton 
         # Remove photons that are within 0.4 of a lepton
@@ -326,9 +326,9 @@ class TTGammaProcessor(processor.ProcessorABC):
         # 1. ADD SELECTION
         #  Object selection
         #select tightPhoton, the subset of photons passing the photonSelect cut and the photonID cut        
-        tightPhoton = events.photon[photonsSelect & photonID]
+        tightPhoton = events.Photon[photonSelect & photonID]
         #select loosePhoton, the subset of photons passing the photonSelect cut and all photonID cuts without the charged hadron isolation cut applied (photonID_NoChIso)
-        loosePhoton = events.photon[photonID_NoChIso]
+        loosePhoton = events.Photon[photonID_NoChIso]
         
 
         ####
@@ -474,7 +474,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         selection.add('onePho',  (ak.num(tightPhoton) == 1))
 
         # add selection for events with exactly 1 loose photon
-        selection.add('loosePho',(ak.num(loosePhoton) == 1)
+        selection.add('loosePho',(ak.num(loosePhoton) == 1))
        
 
         ##################
@@ -503,7 +503,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         # 2. DEFINE VARIABLES
 
         # define egammaMass, mass of combinations of tightElectron and leadingPhoton (hint: using the ak.cartesian() method)
-        egammaPairs = ?
+        egammaPairs = ak.cartesian({"pho":leadingPhoton, "ele": tightElectron})
         # avoid erros when egammaPairs is empty
         if ak.all(ak.num(egammaPairs)==0):
             egammaMass = np.ones((len(events),1))*-1
@@ -525,10 +525,10 @@ class TTGammaProcessor(processor.ProcessorABC):
                       
         # Define photon category for each event
             phoCategory = np.ones(len(events))
-           phoCategoryLoose = np.ones(len(events))
+            phoCategoryLoose = np.ones(len(events))
 
         # PART 2B: Uncomment to begin implementing photon categorization
- """       
+        """       
         if self.isMC:
             #### Photon categories, using pdgID of the matched gen particle for the leading photon in the event
             # reco photons matched to a generated photon
