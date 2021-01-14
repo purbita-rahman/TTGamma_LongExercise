@@ -326,7 +326,7 @@ class TTGammaProcessor(processor.ProcessorABC):
         #select tightPhoton, the subset of photons passing the photonSelect cut and the photonID cut        
         tightPhoton = events.Photon[photonSelect & photonID]
         #select loosePhoton, the subset of photons passing the photonSelect cut and all photonID cuts without the charged hadron isolation cut applied (photonID_NoChIso)
-        loosePhoton = events.Photon[photonID_NoChIso]
+        loosePhoton = events.Photon[photonSelect & photonID_NoChIso]
         
 
         ####
@@ -521,8 +521,8 @@ class TTGammaProcessor(processor.ProcessorABC):
         ###################
                       
         # Define photon category for each event
-            phoCategory = np.ones(len(events))
-            phoCategoryLoose = np.ones(len(events))
+        phoCategory = np.ones(len(events))
+        phoCategoryLoose = np.ones(len(events))
 
         # PART 2B: Uncomment to begin implementing photon categorization
                
@@ -783,7 +783,7 @@ class TTGammaProcessor(processor.ProcessorABC):
                 #    fill photon_chIso histogram, using the loosePhotons array (photons passing all cuts, except the charged hadron isolation cuts)
                 output['photon_chIso'].fill(dataset=dataset,
                                             chIso=ak.flatten(loosePhoton[phoselLoose].chIso),
-                                            category=phoCategory[phoselLoose],
+                                            category=phoCategoryLoose[phoselLoose],
                                             lepFlavor=lepton,
                                             systematic=syst,
                                             weight=evtWeight[phoselLoose])
@@ -807,13 +807,13 @@ class TTGammaProcessor(processor.ProcessorABC):
             #Fill the photon_lepton_mass histogram for events passing phosel_3j0t_e and phosel_3j0t_mu
             output['photon_lepton_mass_3j0t'].fill(dataset=dataset,
                                                    mass=ak.flatten(egammaMass[phosel_3j0t_e]),
-                                                   category=phosel[phosel_3j0t_e],
+                                                   category=phoCategory[phosel_3j0t_e],
                                                    lepFlavor='electron',
                                                    systematic=syst,
                                                    weight=evtWeight[phosel_3j0t_e])
             output['photon_lepton_mass_3j0t'].fill(dataset=dataset,
                                                    mass=ak.flatten(mugammaMass[phosel_3j0t_mu]),
-                                                   category=phosel[phosel_3j0t_mu],
+                                                   category=phoCategory[phosel_3j0t_mu],
                                                    lepFlavor='muon',
                                                    systematic=syst,
                                                    weight=evtWeight[phosel_3j0t_mu])
